@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    tools:context=".view.MainActivity">
+
+    <include
+        android:id="@+id/title_bar"
+        layout="@layout/layout_title_bar"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintHeight_percent="0.1"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_category"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/view_top_line"
+        app:layout_constraintWidth_percent="0.12" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_subCategory"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@color/white"
+        app:layout_constraintStart_toEndOf="@+id/view_left_line"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/view_top_line"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+    <View
+        android:id="@+id/view_top_line"
+        android:layout_width="0dp"
+        android:layout_height="2dp"
+        android:background="@color/gray"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/title_bar" />
+
+    <View
+        android:id="@+id/view_left_line"
+        android:layout_width="2dp"
+        android:layout_height="0dp"
+        android:background="@color/gray"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/rv_category"
+        app:layout_constraintTop_toBottomOf="@+id/view_top_line" />
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cl_shopping_cart"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@color/green_A2B5A3"
+        android:elevation="10dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/title_bar"
+        app:layout_constraintWidth_percent="0.3">
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <View
+        android:id="@+id/view_shadow"
+        android:layout_width="5dp"
+        android:layout_height="0dp"
+        android:alpha="0.5"
+        android:background="@drawable/tab_layout_drop_shadow"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/cl_shopping_cart"
+        app:layout_constraintTop_toBottomOf="@+id/title_bar" />
+
+<!--    <TextView-->
+<!--        android:id="@+id/tv_shopping_cart"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginEnd="8dp"-->
+<!--        android:layout_marginBottom="8dp"-->
+<!--        android:gravity="center"-->
+<!--        android:text="(0)"-->
+<!--        android:textColor="@color/green_A2B5A3"-->
+<!--        app:drawableLeftCompat="@drawable/ic_baseline_local_grocery_store_24"-->
+<!--        app:layout_constraintBottom_toBottomOf="parent"-->
+<!--        app:layout_constraintEnd_toEndOf="parent" />-->
+</androidx.constraintlayout.widget.ConstraintLayout>
