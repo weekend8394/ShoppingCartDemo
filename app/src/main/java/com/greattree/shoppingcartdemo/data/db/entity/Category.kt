@@ -1,6 +1,9 @@
 package com.greattree.shoppingcartdemo.data.db.entity
 
 import com.google.firebase.firestore.PropertyName
+import java.util.*
+import kotlin.collections.ArrayList
+import kotlin.collections.HashMap
 
 data class Category(
     @set:PropertyName("id")
@@ -13,7 +16,7 @@ data class Category(
 
     @set:PropertyName("pic")
     @get:PropertyName("pic")
-    var categoryPic: Int?,
+    var categoryPic: String?,
 
     @set:PropertyName("subCategory")
     @get:PropertyName("subCategory")
@@ -31,7 +34,7 @@ data class SubCategory(
 
     @set:PropertyName("pic")
     @get:PropertyName("pic")
-    var subCategoryPic: Int?
+    var subCategoryPic: String?
 )
 
 data class ProductInfo(

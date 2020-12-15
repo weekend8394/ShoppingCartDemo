@@ -5,13 +5,19 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import com.greattree.shoppingcartdemo.data.db.entity.SubCategory
-import com.greattree.shoppingcartdemo.data.db.entity.Product
 import com.greattree.shoppingcartdemo.data.db.entity.Category
+import com.greattree.shoppingcartdemo.data.db.entity.Product
+import com.greattree.shoppingcartdemo.data.db.entity.SubCategory
 import com.greattree.shoppingcartdemo.repository.ShoppingCartRepository
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
+import org.jsoup.Jsoup
 
-class ShoppingCartViewModel(private val repository: ShoppingCartRepository) : ViewModel() {
-    var subjectList = MutableLiveData<ArrayList<Category>>()
+class ShoppingCartViewModel(private val repository: ShoppingCartRepository) : ViewModel(),
+    CoroutineScope by MainScope() {
+    var mCategoryList = MutableLiveData<ArrayList<Category>>()
     var productList = MutableLiveData<ArrayList<Product>>()
     val db = Firebase.firestore
 
@@ -48,19 +54,51 @@ class ShoppingCartViewModel(private val repository: ShoppingCartRepository) : Vi
         )
 
         for (i in 0..12) {
-            arrayList.add(Category(i, categoryName[i], 0, getSubCategoryList(i)))
+            arrayList.add(Category(i, categoryName[i], "", getSubCategoryList(i)))
         }
-        val docData = hashMapOf("category" to arrayList)
-        val ref = db.collection("category").document("category")
-        ref.set(docData)
 
+        /**
+         * database 上傳主類別和副類別
+         * */
+        //val docData = hashMapOf("category" to arrayList)
+        //val ref = db.collection("category").document("category")
+        //ref.set(docData)
+
+        val categoryList = arrayListOf<Category>()
         db.collection("category")
             .get()
-            .addOnSuccessListener { result->
-                for (document in result){
-                    subjectList.value = document.data["category"] as ArrayList<Category>
-                    Log.d("TAG", "getCategoryList: " + document.data)
+            .addOnSuccessListener { result ->
+                for (document in result) {
+
+                    val categoryMap = document.data["category"] as ArrayList<HashMap<String, Any>>
+                    for (categoryLists in categoryMap) {
+                        Log.d("TAG", "categoryList : $categoryLists")
+                        //transform to subCategory
+                        val subCategoryMap =
+                            categoryLists["subCategory"] as ArrayList<HashMap<String, Any>>
+                        val subCategoryList = arrayListOf<SubCategory>()
+                        for (subCategoryMaps in subCategoryMap) {
+                            subCategoryList.add(
+                                SubCategory(
+                                    (subCategoryMaps["id"] as Long).toInt(),
+                                    subCategoryMaps["name"] as String,
+                                    subCategoryMaps["pic"] as String
+                                )
+                            )
+                        }
+
+                        //transform to category
+                        categoryList.add(
+                            Category(
+                                (categoryLists["id"] as Long).toInt(),
+                                categoryLists["name"] as String,
+                                categoryLists["pic"] as String,
+                                subCategoryList
+                            )
+                        )
+                    }
                 }
+                mCategoryList.value = categoryList
             }
             .addOnFailureListener {
 
@@ -70,84 +108,120 @@ class ShoppingCartViewModel(private val repository: ShoppingCartRepository) : Vi
     private fun getSubCategoryList(categoryId: Int): ArrayList<SubCategory> {
         val categoryDetailList = ArrayList<SubCategory>()
         when (categoryId) {
+            //醫學美容
             0 -> {
-                val arrayList = arrayOf("臉部保養","洗沐美體/美髮","美齒清潔保養","牙刷/電動牙刷","膚質功能","BIO-OIL百落","Sensimin舒逸敏","Palmer's帕瑪氏","蔻羅蘭","艾瑪絲AROMASE","歐露兒ORRER","自然匯In")
-                for (i in arrayList.indices){
-                    categoryDetailList.add(SubCategory(i, arrayList[i], 0))
+                val arrayList =
+                    getHtml("https://storego.greattree.com.tw/store/series/De95cc6823B0b30b")
+                for (i in arrayList.indices) {
+                    categoryDetailList.add(SubCategory(i, arrayList[i], ""))
                 }
                 return categoryDetailList
             }
+            //婦嬰用品
             1 -> {
-                for (i in 0..2){
-                    categoryDetailList.add(SubCategory(i, "孕產媽咪專區", 0))
+                val arrayList =
+                    getHtml("https://storego.greattree.com.tw/store/series/6cC5C3d823bf3306")
+                for (i in arrayList.indices) {
+                    categoryDetailList.add(SubCategory(i, arrayList[i], ""))
                 }
                 return categoryDetailList
             }
+            //紙尿褲
             2 -> {
-                for (i in 0..2){
-                    categoryDetailList.add(SubCategory(i, "紙尿褲", 0))
+                val arrayList =
+                    getHtml("https://storego.greattree.com.tw/store/series/5755C34823B5730b")
+                for (i in arrayList.indices) {
+                    categoryDetailList.add(SubCategory(i, arrayList[i], ""))
                 }
                 return categoryDetailList
             }
+            //嬰幼兒副食品
             3 -> {
-                for (i in 0..2){
-                    categoryDetailList.add(SubCategory(i, "嬰兒副食品", 0))
+                val arrayList =
+                    getHtml("https://storego.greattree.com.tw/store/series/7b85c46823B1730e")
+                for (i in arrayList.indices) {
+                    categoryDetailList.add(SubCategory(i, arrayList[i], ""))
                 }
                 return categoryDetailList
             }
+            //奶粉
             4 -> {
-                for (i in 0..2){
-                    categoryDetailList.add(SubCategory(i, "奶粉", 0))
+                val arrayList =
+                    getHtml("https://storego.greattree.com.tw/store/series/57d5C42823B36305")
+                for (i in arrayList.indices) {
+                    categoryDetailList.add(SubCategory(i, arrayList[i], ""))
                 }
                 return categoryDetailList
             }
+            //休閒食品
             5 -> {
-                for (i in 0..2){
-                    categoryDetailList.add(SubCategory(i, "休閒食品", 0))
+                val arrayList =
+                    getHtml("https://storego.greattree.com.tw/store/series/57B5c57823B31305")
+                for (i in arrayList.indices) {
+                    categoryDetailList.add(SubCategory(i, arrayList[i], ""))
                 }
                 return categoryDetailList
             }
+            //保健食品
             6 -> {
-                for (i in 0..2){
-                    categoryDetailList.add(SubCategory(i, "保健食品", 0))
+                val arrayList =
+                    getHtml("https://storego.greattree.com.tw/store/series/5095C4f823b1430e")
+                for (i in arrayList.indices) {
+                    categoryDetailList.add(SubCategory(i, arrayList[i], ""))
                 }
                 return categoryDetailList
             }
+            //居家生活
             7 -> {
-                for (i in 0..2){
-                    categoryDetailList.add(SubCategory(i, "居家生活", 0))
+                val arrayList =
+                    getHtml("https://storego.greattree.com.tw/store/series/BbA5C5B823Ba230b")
+                for (i in arrayList.indices) {
+                    categoryDetailList.add(SubCategory(i, arrayList[i], ""))
                 }
                 return categoryDetailList
             }
+            //營養飲品
             8 -> {
-                for (i in 0..2){
-                    categoryDetailList.add(SubCategory(i, "營養飲品", 0))
+                val arrayList =
+                    getHtml("https://storego.greattree.com.tw/store/series/1445c24823b3B302")
+                for (i in arrayList.indices) {
+                    categoryDetailList.add(SubCategory(i, arrayList[i], ""))
                 }
                 return categoryDetailList
             }
+            //外用藥品
             9 -> {
-                for (i in 0..2){
-                    categoryDetailList.add(SubCategory(i, "外用藥品", 0))
+                val arrayList =
+                    getHtml("https://storego.greattree.com.tw/store/series/7C65C26823b7130e")
+                for (i in arrayList.indices) {
+                    categoryDetailList.add(SubCategory(i, arrayList[i], ""))
                 }
                 return categoryDetailList
             }
+            //醫材用品
             10 -> {
-                val arrayList = arrayOf("傷口護理","專業護具","頭/頸/肩部位","肘/腕/掌/指部位","專業鞋墊/機能襪","醫療彈性襪","運動機能襪","口罩/耳塞")
-
-                for (i in arrayList.indices){
-                    categoryDetailList.add(SubCategory(i, "居家生活", 0))
+                val arrayList =
+                    getHtml("https://storego.greattree.com.tw/store/series/eAe5ca9823bf0303")
+                for (i in arrayList.indices) {
+                    categoryDetailList.add(SubCategory(i, arrayList[i], ""))
                 }
                 return categoryDetailList
             }
+            //口服用品
             11 -> {
-                for (i in 0..2){
-                    categoryDetailList.add(SubCategory(i, "口服用品", 0))
+                val arrayList =
+                    getHtml("https://storego.greattree.com.tw/store/series/A195c80823b8330C")
+                for (i in arrayList.indices) {
+                    categoryDetailList.add(SubCategory(i, arrayList[i], ""))
                 }
                 return categoryDetailList
             }
+            //健康照護
             12 -> {
-                for (i in 0..2){
-                    categoryDetailList.add(SubCategory(i, "健康照護", 0))
+                val arrayList =
+                    getHtml("https://storego.greattree.com.tw/store/series/e9D5c30823B0e30a")
+                for (i in arrayList.indices) {
+                    categoryDetailList.add(SubCategory(i, arrayList[i], ""))
                 }
                 return categoryDetailList
             }
@@ -205,5 +279,21 @@ class ShoppingCartViewModel(private val repository: ShoppingCartRepository) : Vi
             testProductList.add(Product(i, productName[i], "阿拉拉拉拉", 0, productPrice[i]))
         }
         productList.value = testProductList
+    }
+
+    private fun getHtml(url: String): ArrayList<String> {
+        val arrayList = arrayListOf<String>()
+        launch(Dispatchers.IO) {
+            val connection = Jsoup.connect(url)
+            val docs = connection.get()
+            docs.getElementsByClass("list-container").select("list-box").attr("text")
+
+            for (string in docs.getElementsByClass("list-box")) {
+                arrayList.add(string.text())
+            }
+        }
+
+//        Thread.sleep(2000)
+        return arrayList
     }
 }

@@ -7,8 +7,10 @@ import android.view.animation.TranslateAnimation
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.layout_title_bar.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.MainScope
 
-open class BaseActivity : AppCompatActivity() {
+open class BaseActivity : AppCompatActivity() ,CoroutineScope by MainScope() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         hidden()

@@ -26,8 +26,10 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.item_category.view.*
 import kotlinx.android.synthetic.main.item_sub_category.view.*
 import kotlinx.android.synthetic.main.layout_title_bar.*
+import kotlinx.coroutines.*
+import org.jsoup.Jsoup
 
-class MainActivity : BaseActivity() {
+class MainActivity : BaseActivity(), CoroutineScope by MainScope() {
     private lateinit var shoppingCartDatabase: ShoppingCartDatabase
     private lateinit var repository: ShoppingCartRepository
     private lateinit var myFactory: ShoppingCartViewModelFactory
@@ -73,7 +75,7 @@ class MainActivity : BaseActivity() {
                         itemView.setOnClickListener(object : CustomerClickListener() {
                             override fun onOneClick() {
                                 selectedPosition = position
-                                viewModel.subjectList.value?.run {
+                                viewModel.mCategoryList.value?.run {
                                     categoryAdapter?.update(this)
                                     subSubCategoryAdapter?.update(itemData.subCategory)
                                 }
@@ -102,21 +104,30 @@ class MainActivity : BaseActivity() {
                             Intent(this@MainActivity, ProductListActivity::class.java).apply {
                                 this.putExtra(
                                     "categoryId",
-                                    if (selectedPosition < 0) viewModel.subjectList.value!![0].categoryId else  viewModel.subjectList.value!![selectedPosition].categoryId
+                                    if (selectedPosition < 0) viewModel.mCategoryList.value!![0].categoryId else viewModel.mCategoryList.value!![selectedPosition].categoryId
                                 )
                                 this.putExtra("subCategoryId", itemData.subCategoryId)
                                 this.putExtra("subCategoryName", itemData.subCategoryName)
                             }.also {
-                                val p1:Pair<View,String> = Pair.create(itemView.iv, "image_productShareAnimation")
-                                val p2:Pair<View,String> = Pair.create(itemView.tv_sub_category_name, "text_productShareAnimation")
-                                val transitionActivityOptions = ActivityOptions.makeSceneTransitionAnimation(this@MainActivity, p1, p2)
-                                startActivity(it,transitionActivityOptions.toBundle())
+                                val p1: Pair<View, String> =
+                                    Pair.create(itemView.iv, "image_productShareAnimation")
+                                val p2: Pair<View, String> = Pair.create(
+                                    itemView.tv_sub_category_name,
+                                    "text_productShareAnimation"
+                                )
+                                val transitionActivityOptions =
+                                    ActivityOptions.makeSceneTransitionAnimation(
+                                        this@MainActivity,
+                                        p1,
+                                        p2
+                                    )
+                                startActivity(it, transitionActivityOptions.toBundle())
                             }
                         }
                     })
                 }
         }
-        rv_subCategory.layoutManager = GridLayoutManager(this,3)
+        rv_subCategory.layoutManager = GridLayoutManager(this, 3)
         rv_subCategory.setHasFixedSize(true)
 
         subSubCategoryAdapter?.run {
@@ -125,11 +136,9 @@ class MainActivity : BaseActivity() {
     }
 
     private fun initObserver() {
-        Coroutines.main {
-            viewModel.subjectList.observe(this@MainActivity, Observer {
-                categoryAdapter?.update(it)
-            })
-        }
+        viewModel.mCategoryList.observe(this@MainActivity, Observer {
+            categoryAdapter?.update(it)
+        })
     }
 
     private fun setCategorySelectedColor(itemView: View, itemData: Category, position: Int) {
@@ -137,7 +146,9 @@ class MainActivity : BaseActivity() {
         if (selectedPosition == -1 && position == 0) {
             itemView.cl.setBackgroundColor(this@MainActivity.getColor(R.color.green))
             itemView.tv_category.setTextColor(this@MainActivity.getColor(R.color.white))
-            subSubCategoryAdapter?.update(itemData.subCategory)
+            Coroutines.main {
+                subSubCategoryAdapter?.update(itemData.subCategory)
+            }
         } else {
             itemView.cl.setBackgroundColor(
                 if (position == selectedPosition) this.getColor(
