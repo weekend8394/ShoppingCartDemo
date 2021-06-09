@@ -74,8 +74,7 @@ class ShoppingCartViewModel(private val repository: ShoppingCartRepository) : Vi
                     for (categoryLists in categoryMap) {
                         Log.d("TAG", "categoryList : $categoryLists")
                         //transform to subCategory
-                        val subCategoryMap =
-                            categoryLists["subCategory"] as ArrayList<HashMap<String, Any>>
+                        val subCategoryMap = categoryLists["subCategory"] as ArrayList<HashMap<String, Any>>
                         val subCategoryList = arrayListOf<SubCategory>()
                         for (subCategoryMaps in subCategoryMap) {
                             subCategoryList.add(
